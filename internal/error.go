@@ -21,6 +21,7 @@ type ValidationError struct {
 }
 
 var (
+	ErrVehicleAlreadyExists          = errors.New("vehicle already exists")
 	ErrUniqueConstraintViolation     = errors.New("unique constraint violation")
 	ErrForeignKeyConstraintViolation = errors.New("foreign key constraint violation")
 	ErrNoRows                        = errors.New("no rows in result set")

@@ -6,7 +6,7 @@ import (
 	"github.com/marco-almeida/challenge-02/internal/postgresql/db"
 )
 
-// OrderRepository defines the methods that any User repository should implement.
+// OrderRepository defines the methods that any Vehicle repository should implement.
 type OrderRepository interface {
 	Create(ctx context.Context, arg db.CreateOrderParams) (db.Order, error)
 	Get(ctx context.Context, id int64) (db.Order, error)

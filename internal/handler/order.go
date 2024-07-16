@@ -85,10 +85,6 @@ func (h *OrderHandler) handleOverrideObservations(ctx *gin.Context) {
 	}
 
 	orderIdStr := ctx.Param("id")
-	if orderIdStr == "" {
-		ctx.Error(internal.ErrInvalidParams)
-		return
-	}
 
 	orderId, err := strconv.ParseInt(orderIdStr, 10, 64)
 	if err != nil {
@@ -109,19 +105,14 @@ func (h *OrderHandler) handleOverrideObservations(ctx *gin.Context) {
 }
 
 func (h *OrderHandler) handleGetOrder(ctx *gin.Context) {
-	orderIdStr := ctx.Param("id")
-	if orderIdStr == "" {
-		ctx.Error(internal.ErrInvalidParams)
+	var req uriIdRequest
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.Error(fmt.Errorf("%w; %w", internal.ErrInvalidParams, err))
 		return
 	}
 
-	orderId, err := strconv.ParseInt(orderIdStr, 10, 64)
-	if err != nil {
-		ctx.Error(internal.ErrInvalidParams)
-		return
-	}
-
-	order, err := h.orderSvc.Get(ctx, orderId)
+	order, err := h.orderSvc.Get(ctx, req.ID)
 	if err != nil {
 		ctx.Error(err)
 		return

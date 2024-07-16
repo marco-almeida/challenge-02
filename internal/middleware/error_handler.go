@@ -35,6 +35,8 @@ func ErrorHandler() gin.HandlerFunc {
 					})
 				}
 				c.JSON(http.StatusBadRequest, errorResponse)
+			case errors.Is(unwrappedErr, internal.ErrVehicleAlreadyExists):
+				c.JSON(http.StatusBadRequest, gin.H{"error": "vehicle already exists"})
 			case errors.Is(unwrappedErr, internal.ErrInvalidParams):
 				c.JSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
 			case errors.Is(unwrappedErr, internal.ErrForeignKeyConstraintViolation):

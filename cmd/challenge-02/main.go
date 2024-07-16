@@ -129,7 +129,17 @@ func newServer(config config.Config, connPool *pgxpool.Pool) (*http.Server, erro
 	// init order service
 	orderService := service.NewOrderService(orderRepo)
 
+	// init order handler
 	handler.NewOrderHandler(orderService).RegisterRoutes(router)
+
+	// init vehicle repo
+	vehicleRepo := postgresql.NewVehicleRepository(connPool)
+
+	// init vehicle service
+	vehicleService := service.NewVehicleService(vehicleRepo)
+
+	// init vehicle handler
+	handler.NewVehicleHandler(vehicleService).RegisterRoutes(router)
 
 	return srv, nil
 }

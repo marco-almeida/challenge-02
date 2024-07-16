@@ -9,28 +9,28 @@ import (
 )
 
 // OrderRepository represents the repository used for interacting with order records.
-type UserRepository struct {
+type OrderRepository struct {
 	q *db.Queries
 }
 
 // NewOrder instantiates the order repository.
-func NewOrderRepository(connPool *pgxpool.Pool) *UserRepository {
-	return &UserRepository{
+func NewOrderRepository(connPool *pgxpool.Pool) *OrderRepository {
+	return &OrderRepository{
 		q: db.New(connPool),
 	}
 }
 
-func (userRepo *UserRepository) Create(ctx context.Context, arg db.CreateOrderParams) (db.Order, error) {
-	order, err := userRepo.q.CreateOrder(ctx, arg)
+func (orderRepo *OrderRepository) Create(ctx context.Context, arg db.CreateOrderParams) (db.Order, error) {
+	order, err := orderRepo.q.CreateOrder(ctx, arg)
 	return order, internal.DBErrorToInternal(err)
 }
 
-func (userRepo *UserRepository) Get(ctx context.Context, id int64) (db.Order, error) {
-	order, err := userRepo.q.GetOrder(ctx, id)
+func (orderRepo *OrderRepository) Get(ctx context.Context, id int64) (db.Order, error) {
+	order, err := orderRepo.q.GetOrder(ctx, id)
 	return order, internal.DBErrorToInternal(err)
 }
 
-func (userRepo *UserRepository) UpdateObservations(ctx context.Context, arg db.UpdateOrderObservationsParams) (db.Order, error) {
-	order, err := userRepo.q.UpdateOrderObservations(ctx, arg)
+func (orderRepo *OrderRepository) UpdateObservations(ctx context.Context, arg db.UpdateOrderObservationsParams) (db.Order, error) {
+	order, err := orderRepo.q.UpdateOrderObservations(ctx, arg)
 	return order, internal.DBErrorToInternal(err)
 }
