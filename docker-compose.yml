@@ -1,0 +1,36 @@
+version: '3.8'
+name: challenge-02
+services:
+  postgres:
+    image: postgres:16.3-alpine3.19
+    ports:
+      - ${POSTGRES_PORT}:5432
+    restart: always
+    env_file:
+      # in order to use the env vars in this file
+      - ${CHALLENGE_ENV}.env
+    networks:
+      - challenge-02
+    volumes:
+      - challenge-02-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready",
+          "-U",
+          "${POSTGRES_USER}",
+          "-d",
+          "${POSTGRES_DB}"
+        ]
+      start_period: 5s # wait 5 seconds before running the first check
+      interval: 5s # check every 5 seconds
+      timeout: 5s # wait 5 seconds for the check to complete
+      retries: 10 # allow 10 retries before considering the container as unhealthy
+
+networks:
+  challenge-02:
+    driver: bridge
+
+volumes:
+  challenge-02-postgres:

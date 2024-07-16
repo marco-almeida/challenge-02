@@ -1,0 +1,53 @@
+Welcome
+
+Hello! This assignment is designed to explore your reasoning process and software engineering skills, with a particular focus in backend and/or frontend tasks. At Meight we strive to have a software development process that ensures easy communication, quick iteration, while keeping quality very high. That's why we prefer clean and minimal implementations, concerns well separated and problems well identified, that allow us to grow our code base in a sustainable way.
+
+The assignment consists of a set of constraints or requirements that you would find working at Meight. This could come to you either from direct user feedback, or from a feature we wanted to prioritize.
+
+Challenge 02
+
+Everyday, drivers need to pick up/deliver a specific number of orders. Every order has a given weight, a destination, observations, and is assigned to a particular vehicle plate number. All vehicles have a max weight capacity, and every order naturally takes some of that capacity. At the beginning of the day, a fleet manager needs to assign a certain number of orders to a vehicle. For that to happen our system needs to store a list of orders that a vehicle was assigned on a specific day. When receiving the list of orders for a vehicle, the application should sort the orders so a driver knows which order to do next. The order delivery sequence cant be random because we'd like to save some costs, which we can safely assume to be proportional to distance travelled.
+
+So each driver starts their journey on Fintech House in Lisbon (38.71814, -9.14552), and there are 4 orders [A(40.97134, -5.66337), B(39.47590, -0.37696), C(41.15936, -8.62907), D(40.42382, -3.70254)] To get the distance between coordinates you can use HERE API: https://developer.here.com/develop/rest-apis, alternative you can mock the response.
+
+To help drivers do their job, at the beginning of the day they need to know all orders assigned to their vehicle. Also, at all times they need to know which is the next delivery. Because logistics is quite chaotic, the backoffice needs to update order observations and learn when a driver completes a delivery. Finally and to help drivers keep track of their day, we need to always show them which orders are still to be delivered.
+
+Bonus
+    Every time a delivery is finished the application should send an event to the system informing that the specific task was ended. This service is listening to that event and updating the available weight capacity of the vehicle that was performing the order.
+    At any time, we should be able to get the available capacity of a specific vehicle.
+    Every time an order update happens, the drivers is notified
+
+Technical Evaluation
+
+Backend
+(optionally mock the backend if implementing Frontend)
+
+    API
+    You are expected to interpret the problem above and create a set of endpoints to satisfy it
+    Database
+    You are expected to build appropriate database schemas and setup the database engine
+        
+Frontend
+(optionally skip the frontend if implementing backend)
+
+    UI (use Material Design)
+    You are expected to build a simple experience that allows drivers to:
+    list orders for the day
+    when clicking on one order, show available information about it
+    allow the user to mark an order as completed
+    see next order details
+    when an order is updated, the list is updated (you can mock the event)
+    API
+    You are expected to build a layer to connect with API (data can be mocked)
+
+Data
+    Messaging system (Bonus)
+    You are expected to setup a messaging system to handle even processing that interacts with the backend database
+    
+Devops
+    Containerization
+    You are expected to deliver you solution containerized (e.g. docker compose), or to be compiled (in case of Android)
+    Continuous Integration (Bonus)
+    You are expected to build automation to run tests
+
+

@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS "assigned_orders";
+DROP TABLE IF EXISTS "vehicle";
+DROP TABLE IF EXISTS "order";
