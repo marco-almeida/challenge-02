@@ -9,10 +9,10 @@ import (
 )
 
 type AssignedOrder struct {
-	ID         int64       `json:"id"`
-	AssignedAt interface{} `json:"assigned_at"`
-	VehicleID  int64       `json:"vehicle_id"`
-	OrderID    int64       `json:"order_id"`
+	ID         int64            `json:"id"`
+	AssignedAt pgtype.Timestamp `json:"assigned_at"`
+	VehicleID  int64            `json:"vehicle_id"`
+	OrderID    int64            `json:"order_id"`
 }
 
 type Order struct {

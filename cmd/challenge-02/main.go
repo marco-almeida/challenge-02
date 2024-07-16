@@ -4,12 +4,15 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"time"
 
 	"syscall"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -17,7 +20,10 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/marco-almeida/challenge-02/internal/config"
+	"github.com/marco-almeida/challenge-02/internal/handler"
+	"github.com/marco-almeida/challenge-02/internal/middleware"
 	"github.com/marco-almeida/challenge-02/internal/postgresql"
+	"github.com/marco-almeida/challenge-02/internal/service"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -69,7 +75,63 @@ func main() {
 }
 
 func runHTPPServer(ctx context.Context, waitGroup *errgroup.Group, config config.Config, connPool *pgxpool.Pool) {
-	
+	server, err := newServer(config, connPool)
+	if err != nil {
+		log.Fatal().Err(err).Msg("cannot create HTTP server")
+	}
+
+	waitGroup.Go(func() error {
+		log.Info().Msg(fmt.Sprintf("start HTTP server on %s", server.Addr))
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			return fmt.Errorf("cannot start HTTP server: %w", err)
+		}
+		return nil
+	})
+
+	waitGroup.Go(func() error {
+		<-ctx.Done()
+		log.Info().Msg("shutting down HTTP server gracefully, press Ctrl+C again to force")
+
+		if err := server.Shutdown(ctx); err != nil {
+			return fmt.Errorf("HTTP server forced to shutdown: %w", err)
+		}
+
+		log.Info().Msg("HTTP server stopped")
+
+		return nil
+	})
+
+}
+
+func newServer(config config.Config, connPool *pgxpool.Pool) (*http.Server, error) {
+	if config.Environment != "dev" && config.Environment != "testing" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	router := gin.New()
+	router.Use(middleware.Logger())
+	router.Use(gin.Recovery())
+	router.Use(middleware.ErrorHandler())
+
+	srv := &http.Server{
+		Addr:              config.HTTPServerAddress,
+		Handler:           router,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		ReadHeaderTimeout: 10 * time.Second,
+		IdleTimeout:       10 * time.Second,
+		MaxHeaderBytes:    1 << 20,
+	}
+
+	// init order repo
+	orderRepo := postgresql.NewOrderRepository(connPool)
+
+	// init order service
+	orderService := service.NewOrderService(orderRepo)
+
+	handler.NewOrderHandler(orderService).RegisterRoutes(router)
+
+	return srv, nil
 }
 
 func runDBMigration(migrationURL string, dbSource string) error {
@@ -101,7 +163,7 @@ func setupLogging(config config.Config) {
 	}
 
 	// set up json or human readable logging
-	if config.Environment == "development" {
+	if config.Environment == "dev" {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: io.MultiWriter(os.Stdout, f)})
 	} else {
 		log.Logger = log.Output(io.MultiWriter(os.Stdout, f))

@@ -47,16 +47,6 @@ func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) (Order
 	return i, err
 }
 
-const deleteOrder = `-- name: DeleteOrder :exec
-DELETE FROM "order"
-WHERE id = $1
-`
-
-func (q *Queries) DeleteOrder(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteOrder, id)
-	return err
-}
-
 const getOrder = `-- name: GetOrder :one
 SELECT id, weight, destination, observations, finished
 FROM "order"
@@ -75,44 +65,6 @@ func (q *Queries) GetOrder(ctx context.Context, id int64) (Order, error) {
 		&i.Finished,
 	)
 	return i, err
-}
-
-const listOrders = `-- name: ListOrders :many
-SELECT id, weight, destination, observations, finished FROM "order"
-ORDER BY id
-LIMIT $1
-OFFSET $2
-`
-
-type ListOrdersParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-}
-
-func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order, error) {
-	rows, err := q.db.Query(ctx, listOrders, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []Order{}
-	for rows.Next() {
-		var i Order
-		if err := rows.Scan(
-			&i.ID,
-			&i.Weight,
-			&i.Destination,
-			&i.Observations,
-			&i.Finished,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const updateOrderFinished = `-- name: UpdateOrderFinished :one

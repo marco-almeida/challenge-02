@@ -10,9 +10,7 @@ import (
 
 type Querier interface {
 	CreateOrder(ctx context.Context, arg CreateOrderParams) (Order, error)
-	DeleteOrder(ctx context.Context, id int64) error
 	GetOrder(ctx context.Context, id int64) (Order, error)
-	ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order, error)
 	UpdateOrderFinished(ctx context.Context, arg UpdateOrderFinishedParams) (Order, error)
 	UpdateOrderObservations(ctx context.Context, arg UpdateOrderObservationsParams) (Order, error)
 }
