@@ -28,6 +28,24 @@ services:
       timeout: 5s # wait 5 seconds for the check to complete
       retries: 10 # allow 10 retries before considering the container as unhealthy
 
+  api:
+    build:
+      context: .
+      dockerfile: ./build/package/challenge-02/alpine.Dockerfile
+    container_name: challenge-02
+    image: challenge-02:latest
+    volumes:
+      - ./dev.env:/app/dev.env
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - challenge-02
+    ports:
+      - "3000:3000"
+
 networks:
   challenge-02:
     driver: bridge

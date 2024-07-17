@@ -1,0 +1,233 @@
+openapi: 3.0.3
+info:
+  title: challenge-02
+  version: 1.0.0
+  contact: {}
+servers:
+  - url: http://localhost
+paths:
+  /api/v1/orders:
+    post:
+      tags:
+        - Orders
+      summary: Create order
+      description: Create order
+      operationId: createOrder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                destination_x:
+                  type: number
+                  example: 47.2342
+                destination_y:
+                  type: number
+                  example: 5.45123
+                observations:
+                  type: string
+                  example: be sure to deliver this at Gate B
+                weight:
+                  type: number
+                  example: 1234
+            example:
+              destination_x: 47.2342
+              destination_y: 5.45123
+              observations: be sure to deliver this at Gate B
+              weight: 1234
+      responses:
+        '200':
+          description: ''
+  /api/v1/orders/{id}:
+    get:
+      tags:
+        - Orders
+      summary: Get order
+      description: Get order
+      operationId: getOrder
+      responses:
+        '200':
+          description: ''
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: ''
+  /api/v1/orders/{id}/observations:
+    patch:
+      tags:
+        - Orders
+      summary: Override order observations
+      description: Override order observations
+      operationId: overrideOrderObservations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                observations:
+                  type: string
+                  example: to be delivered at gate C
+            example:
+              observations: to be delivered at gate C
+      responses:
+        '200':
+          description: ''
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '7'
+  /api/v1/vehicles/{id}/orders:
+    post:
+      tags:
+        - Orders
+      summary: Assign a order to a vehicle
+      description: Assign a order to a vehicle
+      operationId: assignAOrderToAVehicle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order_id:
+                  type: number
+                  example: 7
+            example:
+              order_id: 7
+      responses:
+        '200':
+          description: ''
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '1'
+  /api/v1/vehicles/{id}:
+    get:
+      tags:
+        - Vehicles
+      summary: Get vehicle
+      description: Get vehicle
+      operationId: getVehicle
+      responses:
+        '200':
+          description: ''
+    delete:
+      tags:
+        - Vehicles
+      summary: Delete vehicle
+      description: Delete vehicle
+      operationId: deleteVehicle
+      responses:
+        '200':
+          description: ''
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '3'
+  /api/v1/vehicles:
+    get:
+      tags:
+        - Vehicles
+      summary: Get all vehicles
+      description: Get all vehicles
+      operationId: getAllVehicles
+      parameters:
+        - name: page_id
+          in: query
+          schema:
+            type: string
+            example: '1'
+        - name: page_size
+          in: query
+          schema:
+            type: string
+            example: '6'
+      responses:
+        '200':
+          description: ''
+    post:
+      tags:
+        - Vehicles
+      summary: Create vehicle
+      description: Create vehicle
+      operationId: createVehicle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                max_weight_capacity:
+                  type: number
+                  example: 2000
+                number_plate:
+                  type: string
+                  example: 01-au-37
+            example:
+              max_weight_capacity: 2000
+              number_plate: 01-au-37
+      responses:
+        '200':
+          description: ''
+  /api/v1/vehicles/{id}/unfinished_orders:
+    get:
+      tags:
+        - Vehicles
+      summary: Get vehicle's unfinished orders
+      description: Get vehicle's unfinished orders
+      operationId: getVehicleSUnfinishedOrders
+      parameters:
+        - name: page_id
+          in: query
+          schema:
+            type: string
+            example: '1'
+        - name: page_size
+          in: query
+          schema:
+            type: string
+            example: '10'
+      responses:
+        '200':
+          description: ''
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '1'
+  /api/v1/vehicles/{id}/next_order:
+    get:
+      tags:
+        - Vehicles
+      summary: Get vehicle's next (closest) order
+      description: Get vehicle's next (closest) order
+      operationId: getVehicleSNextClosestOrder
+      responses:
+        '200':
+          description: ''
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '1'
+tags:
+  - name: Orders
+  - name: Vehicles

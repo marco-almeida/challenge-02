@@ -151,6 +151,13 @@ func newServer(config config.Config, connPool *pgxpool.Pool) (*http.Server, erro
 }
 
 func runDBMigration(migrationURL string, dbSource string) error {
+	// print current dir
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
+	fmt.Println(exPath)
 	migration, err := migrate.New(migrationURL, dbSource)
 	if err != nil {
 		return fmt.Errorf("cannot create new migrate instance: %w", err)
