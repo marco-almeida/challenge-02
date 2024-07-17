@@ -39,3 +39,8 @@ func (vehicleRepo *VehicleRepository) Delete(ctx context.Context, id int64) erro
 	err := vehicleRepo.q.DeleteVehicle(ctx, id)
 	return internal.DBErrorToInternal(err)
 }
+
+func (vehicleRepo *VehicleRepository) UpdateCurrentWeight(ctx context.Context, arg db.UpdateVehicleCurrentWeightParams) (db.Vehicle, error) {
+	vehicle, err := vehicleRepo.q.UpdateVehicleCurrentWeight(ctx, arg)
+	return vehicle, internal.DBErrorToInternal(err)
+}

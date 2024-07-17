@@ -35,6 +35,14 @@ func ErrorHandler() gin.HandlerFunc {
 					})
 				}
 				c.JSON(http.StatusBadRequest, errorResponse)
+			case errors.Is(unwrappedErr, internal.ErrOrderTooHeavy):
+				c.JSON(http.StatusBadRequest, gin.H{"error": "vehicle can not handle this order's weight"})
+			case errors.Is(unwrappedErr, internal.ErrOrderAlreadyFinished):
+				c.JSON(http.StatusBadRequest, gin.H{"error": "order already finished"})
+			case errors.Is(unwrappedErr, internal.ErrVehicleNotFound):
+				c.JSON(http.StatusBadRequest, gin.H{"error": "vehicle not found"})
+			case errors.Is(unwrappedErr, internal.ErrOrderNotFound):
+				c.JSON(http.StatusBadRequest, gin.H{"error": "order not found"})
 			case errors.Is(unwrappedErr, internal.ErrVehicleAlreadyExists):
 				c.JSON(http.StatusBadRequest, gin.H{"error": "vehicle already exists"})
 			case errors.Is(unwrappedErr, internal.ErrInvalidParams):
@@ -61,7 +69,7 @@ func validationErrorToText(e validator.FieldError) string {
 	case "max":
 		return fmt.Sprintf("%s cannot be longer than %s", e.Field(), e.Param())
 	case "min":
-		return fmt.Sprintf("%s must be longer than %s", e.Field(), e.Param())
+		return fmt.Sprintf("%s must be at least than %s", e.Field(), e.Param())
 	case "email":
 		return "Invalid email format"
 	case "len":

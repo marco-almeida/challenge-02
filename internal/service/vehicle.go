@@ -14,6 +14,7 @@ type VehicleRepository interface {
 	Get(ctx context.Context, id int64) (db.Vehicle, error)
 	Delete(ctx context.Context, id int64) error
 	GetAll(ctx context.Context, arg db.GetVehiclesParams) ([]db.Vehicle, error)
+	UpdateCurrentWeight(ctx context.Context, arg db.UpdateVehicleCurrentWeightParams) (db.Vehicle, error)
 }
 
 type VehicleService struct {
@@ -46,4 +47,8 @@ func (s *VehicleService) GetAll(ctx context.Context, arg db.GetVehiclesParams) (
 
 func (s *VehicleService) Delete(ctx context.Context, id int64) error {
 	return s.repo.Delete(ctx, id)
+}
+
+func (s *VehicleService) UpdateCurrentWeight(ctx context.Context, arg db.UpdateVehicleCurrentWeightParams) (db.Vehicle, error) {
+	return s.repo.UpdateCurrentWeight(ctx, arg)
 }

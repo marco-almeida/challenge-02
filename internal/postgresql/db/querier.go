@@ -9,14 +9,17 @@ import (
 )
 
 type Querier interface {
+	CreateAssignedOrder(ctx context.Context, arg CreateAssignedOrderParams) (AssignedOrder, error)
 	CreateOrder(ctx context.Context, arg CreateOrderParams) (Order, error)
 	CreateVehicle(ctx context.Context, arg CreateVehicleParams) (Vehicle, error)
 	DeleteVehicle(ctx context.Context, id int64) error
 	GetOrder(ctx context.Context, id int64) (Order, error)
 	GetVehicle(ctx context.Context, id int64) (Vehicle, error)
+	GetVehicleAssignedOrders(ctx context.Context, arg GetVehicleAssignedOrdersParams) ([]Order, error)
 	GetVehicles(ctx context.Context, arg GetVehiclesParams) ([]Vehicle, error)
 	UpdateOrderFinished(ctx context.Context, arg UpdateOrderFinishedParams) (Order, error)
 	UpdateOrderObservations(ctx context.Context, arg UpdateOrderObservationsParams) (Order, error)
+	UpdateVehicleCurrentWeight(ctx context.Context, arg UpdateVehicleCurrentWeightParams) (Vehicle, error)
 }
 
 var _ Querier = (*Queries)(nil)

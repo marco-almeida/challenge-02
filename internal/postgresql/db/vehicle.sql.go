@@ -15,7 +15,7 @@ INSERT INTO "vehicle" (
     number_plate
 ) VALUES (
     $1, $2
-) RETURNING id, max_weight_capacity, number_plate
+) RETURNING id, max_weight_capacity, number_plate, current_weight
 `
 
 type CreateVehicleParams struct {
@@ -26,7 +26,12 @@ type CreateVehicleParams struct {
 func (q *Queries) CreateVehicle(ctx context.Context, arg CreateVehicleParams) (Vehicle, error) {
 	row := q.db.QueryRow(ctx, createVehicle, arg.MaxWeightCapacity, arg.NumberPlate)
 	var i Vehicle
-	err := row.Scan(&i.ID, &i.MaxWeightCapacity, &i.NumberPlate)
+	err := row.Scan(
+		&i.ID,
+		&i.MaxWeightCapacity,
+		&i.NumberPlate,
+		&i.CurrentWeight,
+	)
 	return i, err
 }
 
@@ -41,7 +46,7 @@ func (q *Queries) DeleteVehicle(ctx context.Context, id int64) error {
 }
 
 const getVehicle = `-- name: GetVehicle :one
-SELECT id, max_weight_capacity, number_plate
+SELECT id, max_weight_capacity, number_plate, current_weight
 FROM "vehicle"
 WHERE id = $1
 LIMIT 1
@@ -50,12 +55,17 @@ LIMIT 1
 func (q *Queries) GetVehicle(ctx context.Context, id int64) (Vehicle, error) {
 	row := q.db.QueryRow(ctx, getVehicle, id)
 	var i Vehicle
-	err := row.Scan(&i.ID, &i.MaxWeightCapacity, &i.NumberPlate)
+	err := row.Scan(
+		&i.ID,
+		&i.MaxWeightCapacity,
+		&i.NumberPlate,
+		&i.CurrentWeight,
+	)
 	return i, err
 }
 
 const getVehicles = `-- name: GetVehicles :many
-SELECT id, max_weight_capacity, number_plate
+SELECT id, max_weight_capacity, number_plate, current_weight
 FROM "vehicle"
 ORDER BY id
 LIMIT $1
@@ -76,7 +86,12 @@ func (q *Queries) GetVehicles(ctx context.Context, arg GetVehiclesParams) ([]Veh
 	items := []Vehicle{}
 	for rows.Next() {
 		var i Vehicle
-		if err := rows.Scan(&i.ID, &i.MaxWeightCapacity, &i.NumberPlate); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.MaxWeightCapacity,
+			&i.NumberPlate,
+			&i.CurrentWeight,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -85,4 +100,28 @@ func (q *Queries) GetVehicles(ctx context.Context, arg GetVehiclesParams) ([]Veh
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateVehicleCurrentWeight = `-- name: UpdateVehicleCurrentWeight :one
+UPDATE "vehicle"
+SET current_weight = $1
+WHERE id = $2
+RETURNING id, max_weight_capacity, number_plate, current_weight
+`
+
+type UpdateVehicleCurrentWeightParams struct {
+	CurrentWeight float32 `json:"current_weight"`
+	ID            int64   `json:"id"`
+}
+
+func (q *Queries) UpdateVehicleCurrentWeight(ctx context.Context, arg UpdateVehicleCurrentWeightParams) (Vehicle, error) {
+	row := q.db.QueryRow(ctx, updateVehicleCurrentWeight, arg.CurrentWeight, arg.ID)
+	var i Vehicle
+	err := row.Scan(
+		&i.ID,
+		&i.MaxWeightCapacity,
+		&i.NumberPlate,
+		&i.CurrentWeight,
+	)
+	return i, err
 }

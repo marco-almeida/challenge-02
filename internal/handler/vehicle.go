@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/marco-almeida/challenge-02/internal"
 	"github.com/marco-almeida/challenge-02/internal/postgresql/db"
 )
@@ -18,15 +20,24 @@ type VehicleService interface {
 	GetAll(ctx context.Context, arg db.GetVehiclesParams) ([]db.Vehicle, error)
 }
 
+// AssignedOrderService defines the methods that the vehicle handler will use
+type AssignedOrderService interface {
+	CreateAssignedOrder(ctx context.Context, arg db.CreateAssignedOrderParams) (db.AssignedOrder, error)
+	GetVehicleAssignedOrders(ctx context.Context, arg db.GetVehicleAssignedOrdersParams) ([]db.Order, error)
+	GetNextOrder(ctx context.Context, id int64) (db.Order, error)
+}
+
 // VehicleHandler is the handler for the vehicle service
 type VehicleHandler struct {
-	vehicleSvc VehicleService
+	vehicleSvc       VehicleService
+	assignedOrderSvc AssignedOrderService
 }
 
 // NewVehicleHandler returns a new VehicleHandler
-func NewVehicleHandler(vehicleSvc VehicleService) *VehicleHandler {
+func NewVehicleHandler(vehicleSvc VehicleService, assignedOrderSvc AssignedOrderService) *VehicleHandler {
 	return &VehicleHandler{
-		vehicleSvc: vehicleSvc,
+		vehicleSvc:       vehicleSvc,
+		assignedOrderSvc: assignedOrderSvc,
 	}
 }
 
@@ -145,5 +156,62 @@ func (h *VehicleHandler) handleAssignOrderToVehicle(ctx *gin.Context) {
 		return
 	}
 
-	assignedOrder, err := h.vehicleSvc.assignOrderToVehicle(ctx, vehicleReq.ID, orderReq.OrderID)
+	assignedOrder, err := h.assignedOrderSvc.CreateAssignedOrder(ctx, db.CreateAssignedOrderParams{
+		VehicleID: vehicleReq.ID,
+		OrderID:   orderReq.OrderID,
+		AssignedAt: pgtype.Timestamp{
+			Time:  time.Now(),
+			Valid: true,
+		},
+	})
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, assignedOrder)
+}
+
+func (h *VehicleHandler) handleGetUnfinishedOrders(ctx *gin.Context) {
+	var vehicleReq uriIdRequest
+	if err := ctx.ShouldBindUri(&vehicleReq); err != nil {
+		ctx.Error(fmt.Errorf("%w; %w", internal.ErrInvalidParams, err))
+		return
+	}
+
+	var paginationReq getAllVehiclesRequest
+	if err := ctx.ShouldBindQuery(&paginationReq); err != nil {
+		ctx.Error(fmt.Errorf("%w; %w", internal.ErrInvalidParams, err))
+		return
+	}
+
+	orders, err := h.assignedOrderSvc.GetVehicleAssignedOrders(ctx, db.GetVehicleAssignedOrdersParams{
+		VehicleID: vehicleReq.ID,
+		Limit:     paginationReq.PageSize,
+		Offset:    (paginationReq.PageID - 1) * paginationReq.PageSize,
+	})
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, orders)
+}
+
+func (h *VehicleHandler) handleGetNextOrder(ctx *gin.Context) {
+	var req uriIdRequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.Error(fmt.Errorf("%w; %w", internal.ErrInvalidParams, err))
+		return
+	}
+
+	order, err := h.assignedOrderSvc.GetNextOrder(ctx, req.ID)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, order)
 }

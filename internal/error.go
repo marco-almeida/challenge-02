@@ -21,6 +21,10 @@ type ValidationError struct {
 }
 
 var (
+	ErrOrderTooHeavy                 = errors.New("vehicle can not handle this order's weight")
+	ErrOrderAlreadyFinished          = errors.New("order already finished")
+	ErrVehicleNotFound               = errors.New("vehicle not found")
+	ErrOrderNotFound                 = errors.New("order not found")
 	ErrVehicleAlreadyExists          = errors.New("vehicle already exists")
 	ErrUniqueConstraintViolation     = errors.New("unique constraint violation")
 	ErrForeignKeyConstraintViolation = errors.New("foreign key constraint violation")

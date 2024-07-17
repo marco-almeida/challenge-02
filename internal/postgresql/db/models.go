@@ -27,4 +27,5 @@ type Vehicle struct {
 	ID                int64   `json:"id"`
 	MaxWeightCapacity float32 `json:"max_weight_capacity"`
 	NumberPlate       string  `json:"number_plate"`
+	CurrentWeight     float32 `json:"current_weight"`
 }

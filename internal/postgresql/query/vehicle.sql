@@ -22,3 +22,9 @@ OFFSET $2;
 -- name: DeleteVehicle :exec
 DELETE FROM "vehicle"
 WHERE id = $1;
+
+-- name: UpdateVehicleCurrentWeight :one
+UPDATE "vehicle"
+SET current_weight = $1
+WHERE id = $2
+RETURNING *;
