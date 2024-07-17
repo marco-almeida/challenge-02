@@ -13,7 +13,6 @@ services:
       - challenge-02
     volumes:
       - challenge-02-postgres:/var/lib/postgresql/data
-      - ./internal/postgresql/init:/docker-entrypoint-initdb.d
     healthcheck:
       test:
         [

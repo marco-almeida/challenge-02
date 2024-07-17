@@ -47,7 +47,7 @@ func (s *AssignedOrderService) GetVehicleAssignedOrders(ctx context.Context, arg
 	}
 
 	// sort orders by closest
-	sortOrdersByClosest(orders)
+	sortOrdersByClosest(orders, initialLat, initialLong)
 
 	return orders, nil
 }
@@ -121,11 +121,12 @@ const (
 	initialLong   = -9.14552 // Fintech House in Lisbon
 )
 
-func sortOrdersByClosest(orders []db.Order) {
+// sortOrdersByClosest sorts orders by closest to the given coordinates
+func sortOrdersByClosest(orders []db.Order, lat float64, long float64) {
 	// we start at 38.71814, -9.14552
 	sort.Slice(orders, func(i, j int) bool {
-		distanceFromI := DistanceBetweenCoordinates(initialLat, initialLong, orders[i].Destination.P.X, orders[i].Destination.P.Y)
-		distanceFromJ := DistanceBetweenCoordinates(initialLat, initialLong, orders[j].Destination.P.X, orders[j].Destination.P.Y)
+		distanceFromI := DistanceBetweenCoordinates(lat, long, orders[i].Destination.P.X, orders[i].Destination.P.Y)
+		distanceFromJ := DistanceBetweenCoordinates(lat, long, orders[j].Destination.P.X, orders[j].Destination.P.Y)
 
 		return distanceFromI < distanceFromJ
 	})
